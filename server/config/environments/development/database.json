@@ -1,0 +1,21 @@
+{
+  "defaultConnection": "default",
+  "connections": {
+    "default": {
+      "connector": "strapi-hook-mongoose",
+      "settings": {
+        "client": "mongo",
+        "host": "ds115963.mlab.com",
+        "srv": false,
+        "port": "15963",
+        "database": "brewhaha",
+        "username": "tombowden",
+        "password": "brew1234"
+      },
+      "options": {
+        "authenticationDatabase": "brewhaha",
+        "ssl": false
+      }
+    }
+  }
+}
