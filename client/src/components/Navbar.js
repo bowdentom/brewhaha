@@ -28,7 +28,7 @@ const AuthNav = ({ handleSignout }) => {
       shape="roundedBottom"
     >
       {/* Checkout link */}
-      <NavLink activeClassName="active" to="/signin">
+      <NavLink activeClassName="active" to="/checkout">
         <Text color="white" size="xl">
           Checkout
         </Text>
