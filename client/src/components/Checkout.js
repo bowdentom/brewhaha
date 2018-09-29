@@ -58,6 +58,9 @@ class _CheckoutForm extends Component {
       const response = await this.props.stripe.createToken()
       stripeToken = response.token.id
 
+      // Send email via SendGrid
+      await this.sendOrderConfirmationEmailToCustomer()
+
       // Create order with Strapi SDK (making request to backend)
       await strapi.createEntry('orders', {
         amount,
@@ -77,6 +80,19 @@ class _CheckoutForm extends Component {
       this.setState({ orderProcessing: false, modal: false })
       this.showToast(err.message)
     }
+  }
+
+  sendOrderConfirmationEmailToCustomer = async () => {
+    const { confirmationEmail } = this.state
+
+    await strapi.request('POST', '/email', {
+      data: {
+        to: confirmationEmail,
+        subject: `Order Confirmation - Brewhaha ${new Date(Date.now())}`,
+        text: 'Your order has been processed.',
+        html: '<strong>Expect your order to arrive in 2-3 calendar days.<strong>',
+      }
+    })
   }
 
   closeModal = () => this.setState({ modal: false })
@@ -251,7 +267,7 @@ const ConfirmationModal = ({ cartItems, closeModal, handleSubmitOrder, orderProc
         </Box>
       </Box>
     }
-    heading="Confirm Your Order"
+    heading="Confirming Your Order"
     onDismiss={closeModal}
     role="alertdialog"
     size="sm"
