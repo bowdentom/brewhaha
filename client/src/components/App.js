@@ -46,20 +46,48 @@ class App extends Component {
   }
 
   handleChange = ({ value }) => {
-    this.setState({ searchTerm: value })
+    this.setState(
+      { searchTerm: value },
+      () => this.searchBrands()
+    )
   }
 
-  filteredBrands = ({ searchTerm, brands }) => {
-    return brands.filter(brand => {
-      return (
-        brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        brand.description.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+  // Search on brand names on backend
+  searchBrands = async () => {
+    const response = await strapi.request('POST', '/graphql', {
+      data: {
+        query: `query {
+          brands(where: {
+            name_contains: "${this.state.searchTerm}"
+          }) {
+            _id
+            name
+            description
+            image {
+              _id
+              url
+            }
+          }
+        }`
+      }
+    })
+    this.setState({
+      brands: response.data.brands,
+      loadingBrands: false,
     })
   }
 
+  // filteredBrands = ({ searchTerm, brands }) => {
+  //   return brands.filter(brand => {
+  //     return (
+  //       brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       brand.description.toLowerCase().includes(searchTerm.toLowerCase())
+  //     )
+  //   })
+  // }
+
   render() {
-    const { loadingBrands, searchTerm } = this.state
+    const { brands, loadingBrands, searchTerm } = this.state
 
     return (
       <Container>
@@ -102,7 +130,7 @@ class App extends Component {
           shape="rounded"
           wrap
         >
-          {this.filteredBrands(this.state).map(brand => (
+          {brands.map(brand => (
             <Box key={brand._id} margin={2} paddingY={4} width={200}>
               <Link to={`/${brand._id}`}>
                 <Card
