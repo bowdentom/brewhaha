@@ -1,8 +1,58 @@
 import React from 'react'
-import { Box, Heading, Image, Text } from 'gestalt'
-import { NavLink } from 'react-router-dom'
+import { Box, Button, Heading, Image, Text } from 'gestalt'
+import { NavLink, withRouter } from 'react-router-dom'
 
-const Navbar = () => {
+import { clearCart, clearToken, getToken } from '../utils'
+
+class Navbar extends React.Component {
+  handleSignout = () => {
+    clearToken()
+    clearCart()
+    this.props.history.push('/')
+  }
+
+  render() {
+    return getToken() !== null ? <AuthNav handleSignout={this.handleSignout} /> : <UnAuthNav />
+  }
+}
+
+const AuthNav = ({ handleSignout }) => {
+  return (
+    <Box
+      alignItems="center"
+      color="midnight"
+      display="flex"
+      height={70}
+      justifyContent="around"
+      padding={1}
+      shape="roundedBottom"
+    >
+      {/* Checkout link */}
+      <NavLink activeClassName="active" to="/signin">
+        <Text color="white" size="xl">
+          Checkout
+        </Text>
+      </NavLink>
+
+      {/* Title and Logo */}
+      <NavLink activeClassName="active" exact to="/">
+        <Box alignItems="center" display="flex">
+          <Box height={50} margin={2} width={50}>
+            <Image alt="BrewHaha logo" naturalHeight={1} naturalWidth={1} src="./icons/logo.svg" />
+          </Box>
+          <Heading color="orange" size="xs">
+            BrewHaha
+          </Heading>
+        </Box>
+      </NavLink>
+
+      {/* Sign out button */}
+      <Button color="transparent" inline onClick={handleSignout} size="md" text="Sign Out" />
+    </Box>
+  )
+}
+
+const UnAuthNav = () => {
   return (
     <Box
       alignItems="center"
@@ -42,4 +92,4 @@ const Navbar = () => {
   )
 }
 
-export default Navbar
+export default withRouter(Navbar)

@@ -89,7 +89,7 @@ class App extends Component {
             Brew Brands
           </Heading>
         </Box>
-        
+
         {/* Brands */}
         <Box
           dangerouslySetInlineStyle={{
@@ -104,33 +104,40 @@ class App extends Component {
         >
           {this.filteredBrands(this.state).map(brand => (
             <Box key={brand._id} margin={2} paddingY={4} width={200}>
-              <Card
-                image={
-                  <Box height={200} width={200}>
-                    <Image
-                      alt="Brand"
-                      fit="cover"
-                      naturalHeight={1}
-                      naturalWidth={1}
-                      src={`${apiUrl}${brand.image.url}`}
-                    />
+              <Link to={`/${brand._id}`}>
+                <Card
+                  image={
+                    <Box height={200} width={200}>
+                      <Image
+                        alt="Brand"
+                        fit="cover"
+                        naturalHeight={1}
+                        naturalWidth={1}
+                        src={`${apiUrl}${brand.image.url}`}
+                      />
+                    </Box>
+                  }
+                >
+                  <Box
+                    alignItems="center"
+                    direction="column"
+                    display="flex"
+                    justifyContent="center"
+                  >
+                    <Text bold size="xl">
+                      {brand.name}
+                    </Text>
+                    <Text>{brand.description}</Text>
+                    <Box marginTop={2}>
+                      <Text color="orange" size="xl">See Brews</Text>
+                    </Box>
                   </Box>
-                }
-              >
-                <Box alignItems="center" direction="column" display="flex" justifyContent="center">
-                  <Text bold size="xl">
-                    {brand.name}
-                  </Text>
-                  <Text>{brand.description}</Text>
-                  <Text size="xl">
-                    <Link to={`/${brand._id}`}>See Brews</Link>
-                  </Text>
-                </Box>
-              </Card>
+                </Card>
+              </Link>
             </Box>
           ))}
         </Box>
-         <Loader show={loadingBrands} />
+        <Loader show={loadingBrands} />
       </Container>
     )
   }
