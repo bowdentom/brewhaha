@@ -1,14 +1,17 @@
 import React, { Component, Fragment } from 'react'
 import { Box, Button, Container, Heading, Modal, Spinner, Text, TextField } from 'gestalt'
+import { withRouter } from 'react-router-dom'
+
+import { Elements, StripeProvider, CardElement, injectStripe } from 'react-stripe-elements'
 
 import ToastMessage from './ToastMessage'
-import { getCart, calculatePrice } from '../utils'
+import { clearCart, getCart, calculateAmount, calculatePrice } from '../utils'
 
 import Strapi from 'strapi-sdk-javascript/build/main'
 const apiUrl = process.env.API_URL || 'http://localhost:1337'
 const strapi = new Strapi(apiUrl)
 
-class Checkout extends Component {
+class _CheckoutForm extends Component {
   state = {
     address: '',
     cartItems: [],
@@ -43,7 +46,38 @@ class Checkout extends Component {
     this.setState({ modal: true })
   }
 
-  handleSubmitOrder = () => {}
+  handleSubmitOrder = async () => {
+    const { address, cartItems, city, postalCode } = this.state
+    const amount = calculateAmount(cartItems)
+
+    // Process order
+    this.setState({ orderProcessing: true })
+    let stripeToken
+    try {
+      // Create Stripe token
+      const response = await this.props.stripe.createToken()
+      stripeToken = response.token.id
+
+      // Create order with Strapi SDK (making request to backend)
+      await strapi.createEntry('orders', {
+        amount,
+        brews: cartItems,
+        city,
+        address,
+        postalCode,
+        token: stripeToken,
+      })
+
+      // Set flags, clear user cart, show success toast
+      this.setState({ orderProcessing: false, modal: false })
+      clearCart()
+      this.showToast('Your order has been successfully submitted!', true)
+    } catch(err) {
+      // Set flags, show error toast
+      this.setState({ orderProcessing: false, modal: false })
+      this.showToast(err.message)
+    }
+  }
 
   closeModal = () => this.setState({ modal: false })
 
@@ -53,17 +87,18 @@ class Checkout extends Component {
     return !address || !city || !confirmationEmail || !postalCode
   }
 
-  showToast = toastMessage => {
+  showToast = (toastMessage, redirect=false) => {
     this.setState({
       toast: true,
       toastMessage,
     })
     setTimeout(
       () =>
-        this.setState({
-          toast: false,
-          toastMessage: '',
-        }),
+        this.setState(
+          { toast: false, toastMessage: '' },
+          // only push to homepage if redirect value is `true`
+          () => redirect && this.props.history.push('/')
+        ),
       5000,
     )
   }
@@ -97,9 +132,7 @@ class Checkout extends Component {
                 marginBottom={6}
               >
                 <Text color="darkGray" italic>
-                  {cartItems.length === 1
-                    ? `${cartItems.length} Item for Checkout`
-                    : `${cartItems.length} Items for Checkout`}
+                  Your Checkout Items:
                 </Text>
 
                 <Box padding={2}>
@@ -159,6 +192,9 @@ class Checkout extends Component {
                   type="email"
                 />
 
+                {/* Stripe Credit Card Element */}
+                <CardElement id="stripe__input" onReady={input => input.focus()} />
+
                 {/* Stripe Submit Button */}
                 <button id="stripe__button" type="submit">
                   Submit
@@ -198,7 +234,7 @@ class Checkout extends Component {
 const ConfirmationModal = ({ cartItems, closeModal, handleSubmitOrder, orderProcessing }) => (
   <Modal
     accessibilityCloseLabel="close"
-    accessibilityModalLabel="Confirm Your Order"
+    accessibilityModalLabel="Confirming Your Order"
     footer={
       <Box display="flex" justifyContent="center" marginLeft={-1} marginRight={-1}>
         <Box padding={1}>
@@ -253,6 +289,16 @@ const ConfirmationModal = ({ cartItems, closeModal, handleSubmitOrder, orderProc
       </Text>
     )}
   </Modal>
+)
+
+const CheckoutForm = withRouter(injectStripe(_CheckoutForm))
+
+const Checkout = () => (
+  <StripeProvider apiKey="pk_test_VBsqK6qNibYa64Kpsf2CHC1V">
+    <Elements>
+      <CheckoutForm />
+    </Elements>
+  </StripeProvider>
 )
 
 export default Checkout

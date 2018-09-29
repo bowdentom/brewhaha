@@ -6,6 +6,11 @@ export const calculatePrice = items => {
   return totalPrice.toFixed(2)
 }
 
+export const calculateAmount = items => {
+  const totalPrice = items.reduce((acc, item) => acc + item.quantity * item.price, 0)
+  return Number(totalPrice)
+}
+
 /* Local Storage */
 export const setCart = (value, cartKey=CART_KEY) => {
   if (localStorage) {
