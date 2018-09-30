@@ -88,7 +88,7 @@ class _CheckoutForm extends Component {
     await strapi.request('POST', '/email', {
       data: {
         to: confirmationEmail,
-        subject: `Order Confirmation - Brewhaha ${new Date(Date.now())}`,
+        subject: `Order Confirmation - Buy-a-Brew ${new Date(Date.now())}`,
         text: 'Your order has been processed.',
         html: '<strong>Expect your order to arrive in 2-3 calendar days.<strong>',
       }

@@ -20,11 +20,11 @@ const TitleAndLogo = () => (
   <NavLink activeClassName="active" exact to="/">
     <Box alignItems="center" display="flex">
       <Box height={50} margin={2} width={50}>
-        <Image alt="BrewHaha logo" naturalHeight={1} naturalWidth={1} src="./icons/logo.svg" />
+        <Image alt="Buy-a-Brew logo" naturalHeight={1} naturalWidth={1} src="./icons/logo.svg" />
       </Box>
       <div className="wordmark">
         <Heading color="orange" size="xs">
-          BrewHaha
+          Buy-a-Brew
         </Heading>
       </div>
     </Box>
